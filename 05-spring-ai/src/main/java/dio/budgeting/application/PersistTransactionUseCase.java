@@ -17,8 +17,13 @@ public class PersistTransactionUseCase {
 
     @Tool(name = "persist-transaction", description = "Persiste uma nova transação financeira")
     public TransactionOutput execute(PersistTransactionInput input) {
+        if (input == null) throw new IllegalArgumentException("Transação obrigatória");
+        if (input.description() == null || input.description().isBlank())
+            throw new IllegalArgumentException("Descrição obrigatória");
+        if (input.amount() <= 0) throw new IllegalArgumentException("Valor em centavos deve ser positivo");
+        if (input.category() == null) throw new IllegalArgumentException("Categoria obrigatória");
         var transaction = transactionRepository.save(
-                new Transaction(input.description(), input.amount(), input.category()));
+                new Transaction(input.description().trim(), input.amount(), input.category()));
 
         return TransactionOutput.from(transaction);
     }
